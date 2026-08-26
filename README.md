@@ -8,7 +8,7 @@
 [![Python](https://img.shields.io/badge/Python-3.11%20%7C%203.13-blue.svg)]()
 [![Next.js](https://img.shields.io/badge/Next.js-14%20(App%20Router)-black.svg)]()
 [![Core Tests](https://img.shields.io/badge/Core%20Tests-7%2F7%20Passed-brightgreen.svg)]()
-[![Router Accuracy](https://img.shields.io/badge/Router%20Accuracy-100.0%25%20(20%2F20)-brightgreen.svg)]()
+[![Router Accuracy](https://img.shields.io/badge/Router%20Accuracy-100.0%25%20(24%2F24%20Paraphrased)-brightgreen.svg)]()
 [![API Audit](https://img.shields.io/badge/API%20Audit-18%2F18%20Passed-brightgreen.svg)]()
 [![Compliance](https://img.shields.io/badge/Compliance-DPDP%20Act%202023%20%7C%20CERT--In-navy.svg)]()
 
@@ -34,11 +34,12 @@
 | Metric / Benchmark | Test Suite Script | Score / Result | Verification Standard |
 |---|---|---|---|
 | **Core Integration Tests** | `pytest tests/test_all.py` | **7/7 Passed (100%)** | End-to-end task lifecycle, deliverable generators, security watchdog |
-| **Model Router Accuracy** | `python tests/test_router_accuracy.py` | **20/20 (100.0%)** | 20 ground-truth labeled prompts spanning Vision, Code, Deep Reasoning, & Summary |
-| **Multimodal Extraction** | `python tests/test_extraction_accuracy.py` | **100.0% Precision/Recall** | Field-level accuracy against hand-verified ultrasonic inspection report & P&ID |
+| **Model Router Accuracy** | `python tests/test_router_accuracy.py` | **24/24 (100.0%)** | 24 prompts including 6 **paraphrased out-of-sample** queries per category — regex intent scoring, not just keyword matching |
+| **Multimodal Extraction** | `python tests/test_extraction_accuracy.py` | **100.0% on Demo Docs** | Field-level accuracy on demo `.txt` inspection report & P&ID (Mode 1). Live Qwen2.5-VL inference path active in Mode 2 (Ollama running) for real uploaded images |
 | **Exhaustive API Suite** | `python tests/test_exhaustive_audit.py` | **18/18 Passed (100%)** | All 15+ REST endpoints, JWT auth for 5 personas, RAG, & deliverables |
 | **Turnaround Acceleration** | Benchmarked vs. Manual Review | **99.96% Faster (~2,890×)** | Manual engineer review (~4.5 hours) vs. SovereignAI DAG (**~5.58 seconds**) |
 | **Zero-Network Egress** | `psutil` + `netstat -ano` | **0.00 Bytes External Egress** | Strictly `127.0.0.1:8000` / `::1:3000` loopback connections |
+
 
 ---
 

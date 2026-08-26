@@ -29,7 +29,7 @@ def log_test(name, passed, details=""):
     if not passed:
         print(f"       -> ERROR DETAILS: {details}")
 
-def test_api_get(endpoint, token=None):
+def api_get(endpoint, token=None):
     url = f"{BASE_URL}{endpoint}"
     headers = {}
     if token:
@@ -38,7 +38,7 @@ def test_api_get(endpoint, token=None):
     with urllib.request.urlopen(req, timeout=5) as res:
         return res.status, json.loads(res.read().decode())
 
-def test_api_post(endpoint, data, token=None):
+def api_post(endpoint, data, token=None):
     url = f"{BASE_URL}{endpoint}"
     headers = {"Content-Type": "application/json"}
     if token:
@@ -50,6 +50,7 @@ def test_api_post(endpoint, data, token=None):
     )
     with urllib.request.urlopen(req, timeout=10) as res:
         return res.status, json.loads(res.read().decode())
+
 
 def run_all_checks():
     print("\n" + "=" * 90)

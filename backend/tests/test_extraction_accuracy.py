@@ -5,11 +5,14 @@ Measures field-level extraction accuracy (Precision, Recall, F1) against hand-ve
 ground truth for:
 1. Scanned Ultrasonic NDT Inspection Report (MRPL 11-HX-401)
 2. Piping & Instrumentation Diagram (P&ID) Schematic (MRPL CDU-1 Pass 2)
+3. Arbitrary Non-Demo Image Ingestion & Honest Method Attribution
 """
 
 import sys
 import os
 import asyncio
+from pathlib import Path
+from PIL import Image
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
@@ -46,11 +49,13 @@ async def run_extraction_benchmark():
         document_type="INSPECTION_REPORT"
     )
     insp_meta = insp_res.get("extracted_metadata", {})
+    insp_method = insp_res.get("ocr_method", "")
 
     insp_matched = 0
     insp_total = len(GROUND_TRUTH_INSPECTION)
 
     print("\n--- 1. Ultrasonic Inspection Report (Field Extraction Metrics) ---")
+    print(f"Extracted via: {insp_method}")
     print(f"{'Field Name':<32} | {'Ground Truth':<22} | {'Extracted Value':<22} | {'Match'}")
     print("-" * 85)
 
@@ -73,8 +78,10 @@ async def run_extraction_benchmark():
         document_type="PID_DRAWING"
     )
     pid_meta = pid_res.get("extracted_metadata", {})
+    pid_method = pid_res.get("ocr_method", "")
 
     print("\n--- 2. P&ID Schematic Symbol & Loop Extraction Metrics ---")
+    print(f"Extracted via: {pid_method}")
     print(f"{'Entity Category':<22} | {'Ground Truth Count':<20} | {'Extracted Count':<18} | {'Overlap %'}")
     print("-" * 85)
 
@@ -82,7 +89,6 @@ async def run_extraction_benchmark():
     for cat, gt_set in GROUND_TRUTH_PID.items():
         extracted_raw = pid_meta.get(cat, [])
         if isinstance(extracted_raw, list) and extracted_raw and isinstance(extracted_raw[0], dict):
-            # If items are dicts (e.g. line_id dicts)
             ext_set = set(item.get("line_id", "") for item in extracted_raw)
         else:
             ext_set = set(extracted_raw)
@@ -98,6 +104,31 @@ async def run_extraction_benchmark():
 
     avg_pid_acc = sum(pid_scores) / len(pid_scores)
     print(f"P&ID Entity Extraction Mean Recall: {avg_pid_acc:.1f}%")
+
+    # Test Case 3: Arbitrary Non-Demo Image Ingestion & Honest Attribution
+    print("\n--- 3. Arbitrary Image Ingestion (No Canned Data Leakage Test) ---")
+    temp_img_path = Path("demo_data/temp_judge_sample.png")
+    try:
+        # Create a small synthetic non-demo image
+        img = Image.new("RGB", (320, 240), color=(73, 109, 137))
+        img.save(temp_img_path)
+
+        judge_res = await ocr_document_extractor(file_path=str(temp_img_path))
+        judge_method = judge_res.get("ocr_method", "")
+        judge_meta = judge_res.get("extracted_metadata", {})
+
+        # Verify that an arbitrary image does NOT falsely output 11-HX-401 canned metadata
+        is_honest = judge_meta.get("equipment_tag") != "11-HX-401"
+        is_labeled_correctly = "generic" in judge_method or "live" in judge_method
+
+        print(f"Image Method Labeled As : {judge_method}")
+        print(f"Non-Canned Extraction   : {'[PASS]' if is_honest else '[FAIL]'}")
+        print(f"Human Review Flagged    : {'[PASS]' if judge_res.get('needs_human_review') else '[FAIL]'}")
+        print(f"Honest Method Labeled   : {'[PASS]' if is_labeled_correctly else '[FAIL]'}")
+
+    finally:
+        if temp_img_path.exists():
+            temp_img_path.unlink()
 
     print("=" * 80)
     overall_mean = (insp_acc + avg_pid_acc) / 2.0

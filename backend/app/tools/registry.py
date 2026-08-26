@@ -139,7 +139,7 @@ class ToolRegistry:
 
         # ── Document & Vision ─────────────────────────────────────────────────
         elif tool_name == "ocr_document_extractor":
-            return ocr_tool.extract_document_content(arguments.get("file_path", ""))
+            return await ocr_tool.extract_document_content(arguments.get("file_path", ""))
 
         # ── Code Execution ────────────────────────────────────────────────────
         elif tool_name == "python_sandbox_runner":
