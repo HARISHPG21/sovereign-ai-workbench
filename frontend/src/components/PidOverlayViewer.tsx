@@ -90,31 +90,33 @@ export default function PidOverlayViewer() {
   const [viewMode, setViewMode] = useState<"OVERLAY" | "CONFIDENCE" | "METRICS">("OVERLAY");
 
   return (
-    <div className="rounded-xl border border-teal-500/40 bg-[#070D18] p-4 sm:p-5 shadow-xl space-y-4">
+    <div className="rounded-xl border border-slate-200 dark:border-teal-500/40 bg-white dark:bg-[#070D18] p-4 sm:p-5 shadow-xl space-y-4 transition-colors">
       {/* Header with Title & View Mode Selector */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b border-slate-800 pb-3">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b border-slate-200 dark:border-slate-800 pb-3 transition-colors">
         <div>
           <div className="flex items-center gap-2">
-            <span className="flex h-2.5 w-2.5 rounded-full bg-teal-400 animate-pulse" />
-            <h3 className="text-xs sm:text-sm font-bold text-white uppercase tracking-wider flex items-center gap-1.5">
-              <Eye className="h-4 w-4 text-teal-400" />
+            <span className="flex h-2.5 w-2.5 rounded-full bg-teal-500 animate-pulse" />
+            <h3 className="text-xs sm:text-sm font-bold text-slate-900 dark:text-white uppercase tracking-wider flex items-center gap-1.5">
+              <Eye className="h-4 w-4 text-teal-600 dark:text-teal-400" />
               Multimodal P&ID Vision Detection & Bounding Box Overlay
             </h3>
-            <span className="rounded bg-teal-500/10 px-2 py-0.5 text-[9px] font-mono font-bold text-teal-400 border border-teal-500/30">
+            <span className="rounded bg-teal-100 text-teal-800 border border-teal-300 dark:bg-teal-500/10 dark:text-teal-400 dark:border-teal-500/30 px-2 py-0.5 text-[9px] font-mono font-bold">
               Qwen2.5-VL:7B
             </span>
           </div>
-          <p className="text-[11px] text-slate-400 mt-0.5">
+          <p className="text-[11px] text-slate-600 dark:text-slate-400 mt-0.5">
             Real-time entity bounding box localization directly over CDU-1 process schematic.
           </p>
         </div>
 
         {/* View Mode Pills */}
-        <div className="flex items-center gap-1 bg-[#050A14] p-1 rounded-lg border border-slate-800 text-[11px]">
+        <div className="flex items-center gap-1 bg-slate-100 dark:bg-[#050A14] p-1 rounded-lg border border-slate-200 dark:border-slate-800 text-[11px] transition-colors">
           <button
             onClick={() => setViewMode("OVERLAY")}
             className={`px-2.5 py-1 rounded font-semibold transition ${
-              viewMode === "OVERLAY" ? "bg-teal-600 text-white" : "text-slate-400 hover:text-white"
+              viewMode === "OVERLAY" 
+                ? "bg-teal-600 text-white shadow-sm" 
+                : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
             }`}
           >
             Bounding Boxes
@@ -122,7 +124,9 @@ export default function PidOverlayViewer() {
           <button
             onClick={() => setViewMode("METRICS")}
             className={`px-2.5 py-1 rounded font-semibold transition ${
-              viewMode === "METRICS" ? "bg-teal-600 text-white" : "text-slate-400 hover:text-white"
+              viewMode === "METRICS" 
+                ? "bg-teal-600 text-white shadow-sm" 
+                : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
             }`}
           >
             ⚡ Time Acceleration
@@ -130,7 +134,9 @@ export default function PidOverlayViewer() {
           <button
             onClick={() => setViewMode("CONFIDENCE")}
             className={`px-2.5 py-1 rounded font-semibold transition ${
-              viewMode === "CONFIDENCE" ? "bg-teal-600 text-white" : "text-slate-400 hover:text-white"
+              viewMode === "CONFIDENCE" 
+                ? "bg-teal-600 text-white shadow-sm" 
+                : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
             }`}
           >
             Entity Table
@@ -141,7 +147,7 @@ export default function PidOverlayViewer() {
       {/* Main Interactive Blueprint Canvas */}
       {viewMode === "OVERLAY" && (
         <div className="space-y-3">
-          <div className="relative w-full aspect-[16/9] max-h-[360px] rounded-lg border border-slate-700 bg-[#040812] overflow-hidden select-none shadow-inner">
+          <div className="relative w-full aspect-[16/9] max-h-[360px] rounded-lg border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-[#040812] overflow-hidden select-none shadow-inner transition-colors">
             {/* Visual AI Laser Scanline Effect */}
             <div className="animate-laser-scan" />
 
@@ -149,38 +155,38 @@ export default function PidOverlayViewer() {
             <svg className="w-full h-full" viewBox="0 0 900 400" preserveAspectRatio="xMidYMid meet">
               <defs>
                 <pattern id="grid" width="30" height="30" patternUnits="userSpaceOnUse">
-                  <path d="M 30 0 L 0 0 0 30" fill="none" stroke="#0F172A" strokeWidth="0.8" />
+                  <path d="M 30 0 L 0 0 0 30" fill="none" stroke="currentColor" className="text-slate-300 dark:text-slate-900" strokeWidth="0.8" />
                 </pattern>
               </defs>
               <rect width="100%" height="100%" fill="url(#grid)" />
 
               {/* Piping Lines */}
-              <line x1="30" y1="210" x2="130" y2="210" stroke="#0EA5E9" strokeWidth="3" />
-              <text x="40" y="200" fill="#38BDF8" fontSize="9" fontFamily="monospace">12"-CDU-101-A1A (Crude Feed)</text>
+              <line x1="30" y1="210" x2="130" y2="210" stroke="#0284C7" strokeWidth="3" />
+              <text x="40" y="200" fill="#0284C7" fontSize="9" fontFamily="monospace" fontWeight="bold">12"-CDU-101-A1A (Crude Feed)</text>
 
-              <line x1="370" y1="210" x2="430" y2="290" stroke="#0EA5E9" strokeWidth="3" />
-              <line x1="590" y1="290" x2="650" y2="210" stroke="#0EA5E9" strokeWidth="3" />
-              <text x="440" y="275" fill="#38BDF8" fontSize="9" fontFamily="monospace">8"-CDU-104-B2B</text>
+              <line x1="370" y1="210" x2="430" y2="290" stroke="#0284C7" strokeWidth="3" />
+              <line x1="590" y1="290" x2="650" y2="210" stroke="#0284C7" strokeWidth="3" />
+              <text x="440" y="275" fill="#0284C7" fontSize="9" fontFamily="monospace" fontWeight="bold">8"-CDU-104-B2B</text>
 
-              <line x1="830" y1="210" x2="880" y2="210" stroke="#0EA5E9" strokeWidth="3" />
+              <line x1="830" y1="210" x2="880" y2="210" stroke="#0284C7" strokeWidth="3" />
 
               {/* Emergency Bypass Line (Dashed) */}
-              <path d="M 130 150 L 130 350 L 400 350 L 650 350 L 650 270" fill="none" stroke="#F59E0B" strokeWidth="2" strokeDasharray="6,4" />
-              <text x="210" y="340" fill="#FBBF24" fontSize="9" fontFamily="monospace">6"-BPS-108-A1A (Emergency Turnaround Bypass Line)</text>
+              <path d="M 130 150 L 130 350 L 400 350 L 650 350 L 650 270" fill="none" stroke="#D97706" strokeWidth="2" strokeDasharray="6,4" />
+              <text x="210" y="340" fill="#D97706" fontSize="9" fontFamily="monospace" fontWeight="bold">6"-BPS-108-A1A (Emergency Turnaround Bypass Line)</text>
 
               {/* Equipment Schematics (Blueprints) */}
               {/* HX-401 Shell */}
-              <rect x="150" y="150" width="200" height="120" rx="8" fill="#09182A" stroke="#1E293B" strokeWidth="2" />
-              <circle cx="250" cy="210" r="40" fill="none" stroke="#334155" strokeWidth="1.5" strokeDasharray="3,3" />
-              <text x="175" y="215" fill="#94A3B8" fontSize="11" fontWeight="bold">HEAT EXCHANGER 11-HX-401</text>
+              <rect x="150" y="150" width="200" height="120" rx="8" className="fill-slate-200 stroke-slate-400 dark:fill-[#09182A] dark:stroke-[#1E293B]" strokeWidth="2" />
+              <circle cx="250" cy="210" r="40" fill="none" className="stroke-slate-400 dark:stroke-[#334155]" strokeWidth="1.5" strokeDasharray="3,3" />
+              <text x="175" y="215" className="fill-slate-800 dark:fill-[#94A3B8]" fontSize="11" fontWeight="bold">HEAT EXCHANGER 11-HX-401</text>
 
               {/* Pump 11-P-102 */}
-              <circle cx="510" cy="290" r="35" fill="#09182A" stroke="#1E293B" strokeWidth="2" />
-              <text x="475" y="295" fill="#94A3B8" fontSize="10" fontWeight="bold">P-102A</text>
+              <circle cx="510" cy="290" r="35" className="fill-slate-200 stroke-slate-400 dark:fill-[#09182A] dark:stroke-[#1E293B]" strokeWidth="2" />
+              <text x="475" y="295" className="fill-slate-800 dark:fill-[#94A3B8]" fontSize="10" fontWeight="bold">P-102A</text>
 
               {/* Vessel 11-V-201 */}
-              <rect x="670" y="110" width="140" height="200" rx="20" fill="#09182A" stroke="#1E293B" strokeWidth="2" />
-              <text x="695" y="215" fill="#94A3B8" fontSize="11" fontWeight="bold">VESSEL 11-V-201</text>
+              <rect x="670" y="110" width="140" height="200" rx="20" className="fill-slate-200 stroke-slate-400 dark:fill-[#09182A] dark:stroke-[#1E293B]" strokeWidth="2" />
+              <text x="695" y="215" className="fill-slate-800 dark:fill-[#94A3B8]" fontSize="11" fontWeight="bold">VESSEL 11-V-201</text>
 
               {/* Interactive Bounding Boxes rendered dynamically */}
               {SAMPLE_ENTITIES.map((b) => {
@@ -192,12 +198,12 @@ export default function PidOverlayViewer() {
                       y={b.y}
                       width={b.w}
                       height={b.h}
-                      fill={`${b.color}15`}
+                      fill={`${b.color}25`}
                       stroke={b.color}
                       strokeWidth={isSelected ? 2.5 : 1.5}
                       strokeDasharray={isSelected ? "none" : "4,2"}
                       rx="4"
-                      className="transition-all hover:fill-opacity-30"
+                      className="transition-all hover:fill-opacity-40"
                     />
                     {/* Tag Badge */}
                     <rect
@@ -224,41 +230,41 @@ export default function PidOverlayViewer() {
             </svg>
 
             {/* Click instruction banner */}
-            <div className="absolute bottom-2 left-3 bg-[#070D18]/90 backdrop-blur px-2 py-1 rounded text-[10px] text-slate-400 border border-slate-800">
+            <div className="absolute bottom-2 left-3 bg-white/95 text-slate-700 border border-slate-300 shadow-md dark:bg-[#070D18]/90 dark:text-slate-300 dark:border-slate-800 backdrop-blur px-2.5 py-1 rounded text-[10px] font-medium transition-colors">
               💡 Click any bounding box above to inspect extracted field telemetry & SOP citations.
             </div>
           </div>
 
           {/* Selected Entity Inspector Panel */}
           {selectedBox && (
-            <div className="rounded-lg border border-slate-800 bg-[#0B1324] p-3.5 space-y-2">
+            <div className="rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-[#0B1324] p-3.5 space-y-2 transition-colors">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <span
                     className="h-3 w-3 rounded-full shrink-0"
                     style={{ backgroundColor: selectedBox.color }}
                   />
-                  <span className="font-mono font-bold text-xs text-white">{selectedBox.tag}</span>
-                  <span className="text-[10px] text-slate-400 font-medium">({selectedBox.type})</span>
+                  <span className="font-mono font-bold text-xs text-slate-900 dark:text-white">{selectedBox.tag}</span>
+                  <span className="text-[10px] text-slate-500 dark:text-slate-400 font-medium">({selectedBox.type})</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <span className="text-[10px] font-mono text-teal-400">
+                  <span className="text-[10px] font-mono text-teal-700 dark:text-teal-400 font-semibold">
                     Vision Model Confidence: {(selectedBox.confidence * 100).toFixed(1)}%
                   </span>
                   <span
                     className={`rounded px-2 py-0.5 text-[9px] font-bold ${
                       selectedBox.status === "CRITICAL"
-                        ? "bg-red-950 text-red-300 border border-red-500/40"
+                        ? "bg-red-100 text-red-800 border border-red-300 dark:bg-red-950 dark:text-red-300 dark:border-red-500/40"
                         : selectedBox.status === "WARNING"
-                        ? "bg-amber-950 text-amber-300 border border-amber-500/40"
-                        : "bg-teal-950 text-teal-300 border border-teal-500/40"
+                        ? "bg-amber-100 text-amber-800 border border-amber-300 dark:bg-amber-950 dark:text-amber-300 dark:border-amber-500/40"
+                        : "bg-teal-100 text-teal-800 border border-teal-300 dark:bg-teal-950 dark:text-teal-300 dark:border-teal-500/40"
                     }`}
                   >
                     {selectedBox.status}
                   </span>
                 </div>
               </div>
-              <p className="text-xs text-slate-300 leading-relaxed font-sans pl-5">
+              <p className="text-xs text-slate-700 dark:text-slate-300 leading-relaxed font-sans pl-5">
                 {selectedBox.details}
               </p>
             </div>
@@ -269,20 +275,20 @@ export default function PidOverlayViewer() {
       {/* View Mode 2: Measurable Time Acceleration Metric */}
       {viewMode === "METRICS" && (
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 p-2">
-          <div className="rounded-lg border border-slate-800 bg-[#0B1324] p-4 text-center space-y-1">
-            <div className="text-[10px] text-slate-400 uppercase font-semibold">Manual Engineer Review</div>
-            <div className="text-2xl font-bold font-mono text-slate-300">~4.5 Hours</div>
+          <div className="rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-[#0B1324] p-4 text-center space-y-1 transition-colors">
+            <div className="text-[10px] text-slate-500 dark:text-slate-400 uppercase font-semibold">Manual Engineer Review</div>
+            <div className="text-2xl font-bold font-mono text-slate-900 dark:text-slate-300">~4.5 Hours</div>
             <div className="text-[10px] text-slate-500">270 mins manual SOP & drafting</div>
           </div>
-          <div className="rounded-lg border border-teal-500/50 bg-teal-950/30 p-4 text-center space-y-1">
-            <div className="text-[10px] text-teal-400 uppercase font-semibold">SovereignAI Multi-Agent Time</div>
-            <div className="text-2xl font-bold font-mono text-teal-300">5.58 Seconds</div>
-            <div className="text-[10px] text-teal-400">Autonomous 5-Stage DAG Synthesis</div>
+          <div className="rounded-lg border border-teal-300 dark:border-teal-500/50 bg-teal-50 dark:bg-teal-950/30 p-4 text-center space-y-1 transition-colors">
+            <div className="text-[10px] text-teal-800 dark:text-teal-400 uppercase font-semibold">SovereignAI Multi-Agent Time</div>
+            <div className="text-2xl font-bold font-mono text-teal-700 dark:text-teal-300">5.58 Seconds</div>
+            <div className="text-[10px] text-teal-700 dark:text-teal-400">Autonomous 5-Stage DAG Synthesis</div>
           </div>
-          <div className="rounded-lg border border-purple-500/50 bg-purple-950/30 p-4 text-center space-y-1">
-            <div className="text-[10px] text-purple-400 uppercase font-semibold">Turnaround Acceleration</div>
-            <div className="text-2xl font-bold font-mono text-purple-300">99.96% Faster</div>
-            <div className="text-[10px] text-purple-400">~2,890× Deliverable Speedup</div>
+          <div className="rounded-lg border border-purple-300 dark:border-purple-500/50 bg-purple-50 dark:bg-purple-950/30 p-4 text-center space-y-1 transition-colors">
+            <div className="text-[10px] text-purple-800 dark:text-purple-400 uppercase font-semibold">Turnaround Acceleration</div>
+            <div className="text-2xl font-bold font-mono text-purple-700 dark:text-purple-300">99.96% Faster</div>
+            <div className="text-[10px] text-purple-700 dark:text-purple-400">~2,890× Deliverable Speedup</div>
           </div>
         </div>
       )}
@@ -291,28 +297,28 @@ export default function PidOverlayViewer() {
       {viewMode === "CONFIDENCE" && (
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs">
-            <thead className="border-b border-slate-800 text-slate-400 uppercase text-[10px]">
+            <thead className="border-b border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 uppercase text-[10px]">
               <tr>
-                <th className="py-2 px-3">Equipment Tag</th>
-                <th className="py-2 px-3">Classification</th>
-                <th className="py-2 px-3">Vision Confidence</th>
-                <th className="py-2 px-3">Status</th>
+                <th className="py-2 px-3 font-semibold">Equipment Tag</th>
+                <th className="py-2 px-3 font-semibold">Classification</th>
+                <th className="py-2 px-3 font-semibold">Vision Confidence</th>
+                <th className="py-2 px-3 font-semibold">Status</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-800/60 text-slate-300 font-mono text-[11px]">
+            <tbody className="divide-y divide-slate-200 dark:divide-slate-800/60 text-slate-800 dark:text-slate-300 font-mono text-[11px]">
               {SAMPLE_ENTITIES.map((b) => (
-                <tr key={b.id} className="hover:bg-slate-800/30 transition">
-                  <td className="py-2.5 px-3 font-bold text-white">{b.tag}</td>
-                  <td className="py-2.5 px-3 text-slate-400">{b.type}</td>
-                  <td className="py-2.5 px-3 text-teal-400">{(b.confidence * 100).toFixed(1)}%</td>
+                <tr key={b.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/30 transition">
+                  <td className="py-2.5 px-3 font-bold text-slate-900 dark:text-white">{b.tag}</td>
+                  <td className="py-2.5 px-3 text-slate-600 dark:text-slate-400">{b.type}</td>
+                  <td className="py-2.5 px-3 text-teal-700 dark:text-teal-400 font-semibold">{(b.confidence * 100).toFixed(1)}%</td>
                   <td className="py-2.5 px-3">
                     <span
-                      className={`px-1.5 py-0.5 rounded text-[9px] font-bold ${
+                      className={`px-2 py-0.5 rounded text-[9px] font-bold ${
                         b.status === "CRITICAL"
-                          ? "text-red-400 bg-red-950/60"
+                          ? "text-red-800 bg-red-100 border border-red-300 dark:text-red-400 dark:bg-red-950/60 dark:border-red-800"
                           : b.status === "WARNING"
-                          ? "text-amber-400 bg-amber-950/60"
-                          : "text-teal-400 bg-teal-950/60"
+                          ? "text-amber-800 bg-amber-100 border border-amber-300 dark:text-amber-400 dark:bg-amber-950/60 dark:border-amber-800"
+                          : "text-teal-800 bg-teal-100 border border-teal-300 dark:text-teal-400 dark:bg-teal-950/60 dark:border-teal-800"
                       }`}
                     >
                       {b.status}

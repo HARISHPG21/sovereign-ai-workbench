@@ -37,24 +37,24 @@ export default function RootLayout({
           }}
         />
       </head>
-      <body className="min-h-screen bg-[#070D18] text-slate-100 flex flex-col antialiased selection:bg-teal-500 selection:text-white transition-colors">
+      <body className="min-h-screen bg-slate-50 text-slate-900 dark:bg-[#070D18] dark:text-slate-100 flex flex-col antialiased selection:bg-teal-500 selection:text-white transition-colors">
         <Navbar />
         <main className="flex-1 max-w-7xl w-full mx-auto p-3 sm:p-5 md:p-6">{children}</main>
-        <footer className="border-t border-slate-800/80 bg-[#050A14] py-5 text-center text-xs text-slate-500 transition-colors">
+        <footer className="border-t border-slate-300 dark:border-slate-800/80 bg-slate-100 dark:bg-[#050A14] py-5 text-center text-xs text-slate-600 dark:text-slate-500 transition-colors">
           <div className="max-w-7xl mx-auto px-4 flex flex-col md:flex-row items-center justify-between gap-3 text-left">
             <div>
-              <div className="text-white font-semibold text-[11px] sm:text-xs flex items-center gap-2">
+              <div className="text-slate-900 dark:text-white font-semibold text-[11px] sm:text-xs flex items-center gap-2">
                 <span>Smart India Hackathon 2026 (Software Edition)</span>
-                <span className="rounded bg-teal-500/20 text-teal-300 font-mono text-[9px] px-1.5 py-0.5 border border-teal-500/30">
+                <span className="rounded bg-teal-100 text-teal-800 border border-teal-300 dark:bg-teal-500/20 dark:text-teal-300 dark:border-teal-500/30 font-mono text-[9px] px-1.5 py-0.5 font-bold">
                   PS ID: 26117
                 </span>
               </div>
-              <p className="text-[10px] sm:text-[11px] text-slate-400 mt-0.5">
+              <p className="text-[10px] sm:text-[11px] text-slate-600 dark:text-slate-400 mt-0.5">
                 Mangalore Refinery and Petrochemicals Limited (MRPL) • Ministry of Petroleum & Natural Gas (MoPNG)
               </p>
             </div>
             <div className="text-right flex flex-col items-start md:items-end">
-              <span className="text-emerald-400 font-mono text-[10px] sm:text-xs font-bold">
+              <span className="text-emerald-700 dark:text-emerald-400 font-mono text-[10px] sm:text-xs font-bold">
                 100% Air-Gapped On-Premise GPU Execution • 0 External Egress
               </span>
               <span className="text-slate-500 text-[10px] mt-0.5">

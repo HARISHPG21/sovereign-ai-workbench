@@ -67,6 +67,12 @@ html:not(.dark) header {
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
 }
 
+html:not(.dark) .sih-top-ribbon {
+  background: linear-gradient(90deg, #F8FAFC 0%, #F0FDFA 50%, #EFF6FF 100%) !important;
+  border-bottom-color: #CBD5E1 !important;
+  color: #0F172A !important;
+}
+
 html:not(.dark) header nav a {
   color: #1E293B !important;
   font-weight: 600;
@@ -74,6 +80,12 @@ html:not(.dark) header nav a {
 html:not(.dark) header nav a:hover {
   background-color: #F1F5F9 !important;
   color: #090D16 !important;
+}
+
+html:not(.dark) footer {
+  background-color: #F1F5F9 !important;
+  border-top-color: #CBD5E1 !important;
+  color: #475569 !important;
 }
 
 /* 2. Main Containers, Cards & Boxes */
@@ -490,3 +502,101 @@ html.dark .interactive-card:hover {
 .animate-fade-in-up {
   animation: fadeInUp 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
+
+/* 6. Subtle Floating Animation */
+@keyframes float-subtle {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-4px);
+  }
+}
+
+.animate-float {
+  animation: float-subtle 4s ease-in-out infinite;
+}
+
+/* 7. Shimmer Sweep Animation */
+@keyframes shimmer-sweep {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.animate-shimmer-sweep {
+  background: linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.08) 50%, rgba(255,255,255,0) 100%);
+  background-size: 200% 100%;
+  animation: shimmer-sweep 3s infinite;
+}
+
+/* 8. Interactive Lift & Hover Classes */
+.card-lift {
+  transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.28s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.28s ease;
+}
+
+.card-lift:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 30px -6px rgba(0, 0, 0, 0.12), 0 0 16px rgba(20, 184, 166, 0.12);
+}
+
+html.dark .card-lift:hover {
+  box-shadow: 0 16px 36px -8px rgba(0, 0, 0, 0.6), 0 0 20px rgba(20, 184, 166, 0.2);
+}
+
+.btn-glow-teal {
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.btn-glow-teal:hover {
+  transform: translateY(-1.5px);
+  box-shadow: 0 0 22px rgba(20, 184, 166, 0.45), 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+.btn-glow-teal:active {
+  transform: translateY(0) scale(0.98);
+}
+
+.btn-glow-blue {
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.btn-glow-blue:hover {
+  transform: translateY(-1.5px);
+  box-shadow: 0 0 22px rgba(59, 130, 246, 0.45), 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+.btn-glow-blue:active {
+  transform: translateY(0) scale(0.98);
+}
+
+.btn-glow-purple {
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.btn-glow-purple:hover {
+  transform: translateY(-1.5px);
+  box-shadow: 0 0 22px rgba(168, 85, 247, 0.45), 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+.btn-glow-purple:active {
+  transform: translateY(0) scale(0.98);
+}
+
+.btn-glow-amber {
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.btn-glow-amber:hover {
+  transform: translateY(-1.5px);
+  box-shadow: 0 0 22px rgba(245, 158, 11, 0.45), 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+.btn-glow-amber:active {
+  transform: translateY(0) scale(0.98);
+}
+
+/* Staggered transition children */
+.stagger-1 { animation-delay: 50ms; }
+.stagger-2 { animation-delay: 100ms; }
+.stagger-3 { animation-delay: 150ms; }
+.stagger-4 { animation-delay: 200ms; }
+.stagger-5 { animation-delay: 250ms; }
+.stagger-6 { animation-delay: 300ms; }
+.stagger-7 { animation-delay: 350ms; }
+
