@@ -17,7 +17,7 @@ export interface AgentStep {
   tool_input?: any;
   tool_output?: any;
   thought_trace?: string;
-  status: "PENDING" | "RUNNING" | "COMPLETED" | "FAILED";
+  status: "PENDING" | "RUNNING" | "COMPLETED" | "FAILED" | "RETRY";
   created_at: string;
 }
 
@@ -103,5 +103,6 @@ export interface KnowledgeDocument {
   file_size_bytes: number;
   total_pages: number;
   uploaded_at: string;
+  category?: string;
   chunk_count?: number;
 }

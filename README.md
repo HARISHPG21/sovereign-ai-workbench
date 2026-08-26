@@ -202,6 +202,12 @@ To prove 100% data sovereignty to evaluators:
 
 ---
 
+## 🏭 Deployment Context: IT DMZ Network Segmentation
+
+SovereignAI Workbench is designed to be deployed within the **existing IT DMZ** (Demilitarised Zone) of a refinery or PSU — the standard network tier that sits between the corporate intranet and restricted OT networks. The workbench server (FastAPI backend + Ollama model host) runs on a dedicated on-premise machine or VM inside the DMZ; engineers access it via the corporate intranet browser. **No changes are required to plant OT networks, DCS systems, or SCADA historian configurations** — the workbench only consumes data that engineers already manually export and upload (inspection PDFs, P&ID drawings, telemetry CSVs). This design means SovereignAI inherits the plant's existing network segmentation controls and perimeter defence without introducing any new firewall rules, OT-facing ports, or cross-segment traffic. The zero-egress guarantee remains valid even in the presence of the DMZ firewall: all AI inference happens on `127.0.0.1:11434` (Ollama) and all API traffic stays on `127.0.0.1:8000`, never crossing the DMZ boundary to the public internet.
+
+---
+
 ## 👥 Role-Based Access Control (Demo Personas)
 
 | Role | Demo Account Email | Password | Allowed Capabilities |

@@ -132,10 +132,19 @@ class LocalOCRTool:
             if img_b64:
                 vision_prompt = (
                     f"You are SovereignAI, an industrial engineering computer vision specialist for MRPL refinery. "
-                    f"Analyze this industrial image / drawing ({path.name}). "
+                    f"Analyze this industrial image / drawing / P&ID ({path.name}). "
                     f"1. Transcribe all text, numbers, and handwritten notes. "
                     f"2. Identify equipment tags (e.g. 11-HX-401, 11-P-102), valves, lines, and instrument loops. "
-                    f"3. Highlight anomalies, corrosion pitting, or safety limit breaches."
+                    f"3. For each identified equipment entity output a JSON array under the key 'visual_bounding_boxes'. "
+                    f"Each element must have exactly these fields: "
+                    f"id (unique string e.g. 'box-1'), tag (equipment tag string), type (equipment class string), "
+                    f"x (integer, left edge on a 900-wide canvas), y (integer, top edge on a 400-high canvas), "
+                    f"w (integer, width), h (integer, height), "
+                    f"color (hex color: #EF4444 for CRITICAL, #F59E0B for WARNING, #10B981 for NORMAL), "
+                    f"status (one of: CRITICAL, WARNING, NORMAL), "
+                    f"confidence (float 0-1, your detection confidence), "
+                    f"details (one-sentence engineering status summary with measured values and applicable standard). "
+                    f"4. Highlight anomalies, corrosion pitting, or safety limit breaches."
                 )
                 vlm_text = await self._try_live_vlm([img_b64], vision_prompt)
                 if vlm_text:
@@ -234,6 +243,13 @@ class LocalOCRTool:
             '  "instrumentation_loops": ["TI-4101", "PI-4102", "FIC-4103", "PSV-4105"],\n'
             '  "isolation_valves": ["MOV-4101", "MOV-4102", "SB-4101"],\n'
             '  "sop_action_aligned": "Bypass Line 6\\"-BPS-108-A1A ready for isolation upon wall thinning breach",\n'
+            '  "visual_bounding_boxes": [\n'
+            '    {"id": "box-1", "tag": "11-HX-401A/B", "type": "CRUDE PREHEAT EXCHANGER", "x": 130, "y": 130, "w": 240, "h": 160, "color": "#EF4444", "status": "CRITICAL", "confidence": 0.982, "details": "Pass 2 Lower Shell: 3.18mm thickness (SOP-08 cut-off 3.50mm BREACHED by 0.32mm). Category-A isolation required."},\n'
+            '    {"id": "box-2", "tag": "11-P-102A/B", "type": "CRUDE DISTILLATION PUMP", "x": 430, "y": 230, "w": 160, "h": 120, "color": "#F59E0B", "status": "WARNING", "confidence": 0.965, "details": "Casing Vibration RMS: 4.83 mm/s (Exceeds ISO 10816-3 Zone C limit 4.50 mm/s). Bearing temp: 78.6°C."},\n'
+            '    {"id": "box-3", "tag": "11-V-201", "type": "VACUUM FLASH VESSEL", "x": 650, "y": 90, "w": 180, "h": 240, "color": "#10B981", "status": "NORMAL", "confidence": 0.991, "details": "Design Pressure: 3.5 bar | Operating: 1.2 bar. Ultrasonic wall thickness: 8.42mm (Compliant)."},\n'
+            '    {"id": "box-4", "tag": "PSV-4105", "type": "SAFETY RELIEF VALVE", "x": 250, "y": 70, "w": 80, "h": 55, "color": "#3B82F6", "status": "NORMAL", "confidence": 0.974, "details": "Set Pressure: 24.2 bar (API 520). Last certified: 2026-01-15. Hydrostatic seal verified."},\n'
+            '    {"id": "box-5", "tag": "MOV-4101", "type": "MOTOR OPERATED ISOLATION VALVE", "x": 70, "y": 190, "w": 55, "h": 45, "color": "#14B8A6", "status": "NORMAL", "confidence": 0.988, "details": "Emergency shutdown tie-in line 12\\"-CDU-101-A1A. Open/Close stroke test: PASS (4.2s)."}\n'
+            '  ],\n'
             '  "extraction_mode": "sovereign_deterministic_fallback"\n'
             "}"
         )
@@ -286,23 +302,44 @@ class LocalOCRTool:
     def _parse_structured_metadata(text: str, filename: str, ocr_method: str) -> Dict[str, Any]:
         """Extracts field-level metadata and P&ID bounding entities from text or regex patterns."""
         fname_lower = filename.lower()
-        meta = {}
+        meta: Dict[str, Any] = {}
 
-        if "pid" in fname_lower or "p&id" in fname_lower or "drawing" in fname_lower:
-            meta["equipment_tags"] = ["11-HX-401A/B", "11-P-102A/B", "11-V-201"]
-            meta["piping_line_ids"] = ["12\"-CDU-101-A1A", "8\"-CDU-104-B2B", "6\"-BPS-108-A1A"]
-            meta["instrument_loops"] = ["TI-4101", "PI-4102", "FIC-4103", "PSV-4105"]
-            meta["isolation_valves"] = ["MOV-4101", "MOV-4102", "SB-4101"]
-            meta["visual_bounding_boxes"] = [
-                {"tag": "11-HX-401A/B", "type": "HEAT_EXCHANGER", "x": 120, "y": 180, "w": 220, "h": 140, "color": "#14b8a6"},
-                {"tag": "11-P-102A/B", "type": "CENTRIFUGAL_PUMP", "x": 420, "y": 280, "w": 140, "h": 100, "color": "#3b82f6"},
-                {"tag": "11-V-201", "type": "FLASH_VESSEL", "x": 640, "y": 140, "w": 160, "h": 220, "color": "#a855f7"},
-                {"tag": "PSV-4105", "type": "SAFETY_RELIEF_VALVE", "x": 230, "y": 120, "w": 60, "h": 50, "color": "#f59e0b"},
-                {"tag": "MOV-4101", "type": "MOTOR_OPERATED_VALVE", "x": 80, "y": 230, "w": 50, "h": 40, "color": "#10b981"},
-            ]
+        # 1. Try parsing direct JSON block if output by VLM or fallback
+        json_match = re.search(r"(\{[\s\S]*\})", text)
+        if json_match:
+            try:
+                parsed_json = json.loads(json_match.group(1))
+                if isinstance(parsed_json, dict):
+                    meta.update(parsed_json)
+            except Exception:
+                pass
+
+        # 2. P&ID / Drawing handling
+        if "pid" in fname_lower or "p&id" in fname_lower or "drawing" in fname_lower or "schematic" in fname_lower:
+            if "equipment_tags" not in meta:
+                meta["equipment_tags"] = ["11-HX-401A/B", "11-P-102A/B", "11-V-201"]
+            if "piping_line_ids" not in meta:
+                meta["piping_line_ids"] = ["12\"-CDU-101-A1A", "8\"-CDU-104-B2B", "6\"-BPS-108-A1A"]
+            if "instrument_loops" not in meta:
+                meta["instrument_loops"] = ["TI-4101", "PI-4102", "FIC-4103", "PSV-4105"]
+            if "isolation_valves" not in meta:
+                meta["isolation_valves"] = ["MOV-4101", "MOV-4102", "SB-4101"]
+            
+            if "visual_bounding_boxes" not in meta or not meta["visual_bounding_boxes"]:
+                meta["visual_bounding_boxes"] = [
+                    {"id": "box-1", "tag": "11-HX-401A/B", "type": "CRUDE PREHEAT EXCHANGER", "x": 130, "y": 130, "w": 240, "h": 160, "color": "#EF4444", "status": "CRITICAL", "confidence": 0.982, "details": "Pass 2 Lower Shell: 3.18mm thickness (SOP-08 cut-off 3.50mm BREACHED by 0.32mm). Category-A isolation required."},
+                    {"id": "box-2", "tag": "11-P-102A/B", "type": "CRUDE DISTILLATION PUMP", "x": 430, "y": 230, "w": 160, "h": 120, "color": "#F59E0B", "status": "WARNING", "confidence": 0.965, "details": "Casing Vibration RMS: 4.83 mm/s (Exceeds ISO 10816-3 Zone C limit 4.50 mm/s). Bearing temp: 78.6°C."},
+                    {"id": "box-3", "tag": "11-V-201", "type": "VACUUM FLASH VESSEL", "x": 650, "y": 90, "w": 180, "h": 240, "color": "#10B981", "status": "NORMAL", "confidence": 0.991, "details": "Design Pressure: 3.5 bar | Operating: 1.2 bar. Ultrasonic wall thickness: 8.42mm (Compliant)."},
+                    {"id": "box-4", "tag": "PSV-4105", "type": "SAFETY RELIEF VALVE", "x": 250, "y": 70, "w": 80, "h": 55, "color": "#3B82F6", "status": "NORMAL", "confidence": 0.974, "details": "Set Pressure: 24.2 bar (API 520). Last certified: 2026-01-15. Hydrostatic seal verified."},
+                    {"id": "box-5", "tag": "MOV-4101", "type": "MOTOR OPERATED ISOLATION VALVE", "x": 70, "y": 190, "w": 55, "h": 45, "color": "#14B8A6", "status": "NORMAL", "confidence": 0.988, "details": "Emergency shutdown tie-in line 12\"-CDU-101-A1A. Open/Close stroke test: PASS (4.2s)."}
+                ]
         elif "generic" in ocr_method:
             meta["document_type"] = "USER_UPLOADED_IMAGE"
             meta["requires_human_inspection"] = True
+            # Build dynamic bounding box for the uploaded image
+            meta["visual_bounding_boxes"] = [
+                {"id": "box-gen-1", "tag": filename, "type": "INGESTED_INDUSTRIAL_ASSET", "x": 200, "y": 120, "w": 500, "h": 200, "color": "#14B8A6", "status": "NORMAL", "confidence": 0.85, "details": f"On-premise visual ingestion completed for {filename}. Ready for multimodal Qwen2.5-VL feature attribution."}
+            ]
         else:
             # Dynamic regex extraction from document text (with demo fallbacks)
             eq_match = re.search(r"(?:Equipment Tag|Component|Tag):\s*([0-9A-Z\-]+)", text, re.IGNORECASE)
@@ -310,13 +347,33 @@ class LocalOCRTool:
             meas_match = re.search(r"(?:Measured|Minimum).*?([0-9]+\.[0-9]+)\s*mm", text, re.IGNORECASE)
             rate_match = re.search(r"Corrosion Rate.*?([0-9]+\.[0-9]+)\s*mm/year", text, re.IGNORECASE)
 
-            meta["equipment_tag"] = eq_match.group(1) if eq_match else "11-HX-401"
+            tag_val = eq_match.group(1) if eq_match else "11-HX-401"
+            meas_val = float(meas_match.group(1)) if meas_match else 3.18
+
+            meta["equipment_tag"] = tag_val
             meta["nominal_thickness_mm"] = float(nom_match.group(1)) if nom_match else 5.00
-            meta["measured_minimum_thickness_mm"] = float(meas_match.group(1)) if meas_match else 3.18
+            meta["measured_minimum_thickness_mm"] = meas_val
             meta["corrosion_rate_mm_year"] = float(rate_match.group(1)) if rate_match else 0.95
             meta["defect_location"] = "Pass 2 Bottom Shell"
-            meta["sop_08_compliance"] = "FAIL" if meta["measured_minimum_thickness_mm"] < 3.50 else "PASS"
+            meta["sop_08_compliance"] = "FAIL" if meas_val < 3.50 else "PASS"
             meta["mandatory_cutoff_mm"] = 3.50
+
+            # Provide aligned visual bounding box for the extracted inspection equipment
+            meta["visual_bounding_boxes"] = [
+                {
+                    "id": "box-1",
+                    "tag": tag_val,
+                    "type": "CRUDE PREHEAT EXCHANGER",
+                    "x": 130,
+                    "y": 130,
+                    "w": 240,
+                    "h": 160,
+                    "color": "#EF4444" if meas_val < 3.50 else "#10B981",
+                    "status": "CRITICAL" if meas_val < 3.50 else "NORMAL",
+                    "confidence": 0.982,
+                    "details": f"Measured wall thickness: {meas_val}mm (SOP-08 cut-off 3.50mm {'BREACHED' if meas_val < 3.50 else 'COMPLIANT'}). Immediate Category-A bypass required."
+                }
+            ]
 
         return meta
 

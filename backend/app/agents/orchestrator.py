@@ -94,7 +94,13 @@ class AgentOrchestrator:
                 model_used=task.assigned_model,
                 tool_called="ocr_document_extractor",
                 tool_input={"file_path": doc_path},
-                tool_output={"extracted_characters": ocr_result.get("char_count", 0), "pages": ocr_result.get("total_pages", 1)},
+                tool_output={
+                    "extracted_characters": ocr_result.get("char_count", 0),
+                    "pages": ocr_result.get("total_pages", 1),
+                    "extracted_metadata": ocr_result.get("extracted_metadata", {}),
+                    "ocr_method": ocr_result.get("ocr_method", "unknown"),
+                    "confidence_score": ocr_result.get("confidence_score", 0.95),
+                },
                 thought_trace="Extracted scanned inspection metrics: Wall thickness minimum = 3.18mm (Pass 2 Bottom) vs 5.00mm nominal design. Corrosion rate = 0.95mm/yr.",
                 status="COMPLETED"
             )

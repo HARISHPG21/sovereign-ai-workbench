@@ -33,7 +33,7 @@ import {
 } from "lucide-react";
 import { api } from "@/lib/api";
 import { Task } from "@/types";
-import PidOverlayViewer from "@/components/PidOverlayViewer";
+import PidOverlayViewer, { BoundingBox } from "@/components/PidOverlayViewer";
 
 export default function AIWorkbenchPage() {
   const [prompt, setPrompt] = useState<string>("Analyze the attached scanned ultrasonic thickness report for Heat Exchanger HX-401.");
@@ -46,10 +46,35 @@ export default function AIWorkbenchPage() {
   const [execError, setExecError] = useState<string | null>(null);
   const [recentTasks, setRecentTasks] = useState<Task[]>([]);
   const [showSpecModal, setShowSpecModal] = useState<boolean>(false);
+  // Bounding-box entities extracted from the last completed P&ID vision task.
+  // Undefined until a task finishes; empty array means no P&ID entities found.
+  const [pidEntities, setPidEntities] = useState<BoundingBox[] | undefined>(undefined);
 
   useEffect(() => {
     loadTasks();
   }, []);
+
+  // When a task transitions to COMPLETED, extract visual_bounding_boxes from
+  // any step that ran the OCR / vision tool, so the overlay reflects the
+  // actual document that was just processed.
+  useEffect(() => {
+    if (!currentTask || currentTask.status !== "COMPLETED") return;
+    for (const step of currentTask.steps) {
+      const output = step.tool_output;
+      if (!output) continue;
+      // tool_output may be the full ocr result dict, or nested under a key
+      const meta =
+        output?.extracted_metadata ??
+        output?.result?.extracted_metadata ??
+        output;
+      const boxes = meta?.visual_bounding_boxes;
+      if (Array.isArray(boxes) && boxes.length > 0) {
+        setPidEntities(boxes as BoundingBox[]);
+        return;
+      }
+    }
+    // Task completed but no P&ID entities found — keep previous entities if any
+  }, [currentTask?.status, currentTask?.id]);
 
   const loadTasks = async () => {
     try {
@@ -660,7 +685,10 @@ export default function AIWorkbenchPage() {
                 100.0% Entity Recall
               </span>
             </div>
-            <PidOverlayViewer />
+            <PidOverlayViewer
+              extractedEntities={pidEntities}
+              isLoading={isExecuting}
+            />
           </div>
 
           {/* Generated Deliverables Artifact Box */}

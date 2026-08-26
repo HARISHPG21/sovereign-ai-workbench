@@ -51,6 +51,9 @@ def api_post(endpoint, data, token=None):
     with urllib.request.urlopen(req, timeout=10) as res:
         return res.status, json.loads(res.read().decode())
 
+test_api_get = api_get
+test_api_post = api_post
+
 
 def run_all_checks():
     print("\n" + "=" * 90)
